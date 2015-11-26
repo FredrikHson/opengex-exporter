@@ -59,7 +59,7 @@ axisName = [B"x", B"y", B"z"]
 
 
 class ExportVertex:
-    __slots__ = ("hash", "vertexIndex", "faceIndex", "position", "normal", "color", "texcoord0", "texcoord1")
+    __slots__ = ("hash", "vertexIndex", "faceIndex", "position", "normal", "binormal", "tangent", "color", "texcoord0", "texcoord1")
 
     def __init__(self):
         self.color = [1.0, 1.0, 1.0]
@@ -72,6 +72,10 @@ class ExportVertex:
         if (self.position != v.position):
             return (False)
         if (self.normal != v.normal):
+            return (False)
+        if (self.normal != v.binormal):
+            return (False)
+        if (self.normal != v.tangent):
             return (False)
         if (self.color != v.color):
             return (False)
@@ -88,6 +92,12 @@ class ExportVertex:
         h = h * 21737 + hash(self.normal[0])
         h = h * 21737 + hash(self.normal[1])
         h = h * 21737 + hash(self.normal[2])
+        h = h * 21737 + hash(self.binormal[0])
+        h = h * 21737 + hash(self.binormal[1])
+        h = h * 21737 + hash(self.binormal[2])
+        h = h * 21737 + hash(self.tangent[0])
+        h = h * 21737 + hash(self.tangent[1])
+        h = h * 21737 + hash(self.tangent[2])
         h = h * 21737 + hash(self.color[0])
         h = h * 21737 + hash(self.color[1])
         h = h * 21737 + hash(self.color[2])
