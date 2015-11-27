@@ -586,6 +586,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v1.co
             exportVertex.normal = v1.normal if (face.use_smooth) else face.normal
+            exportVertex.binormal = v1.normal if (face.use_smooth) else face.normal
+            exportVertex.tangent = v1.normal if (face.use_smooth) else face.normal
             exportVertexArray.append(exportVertex)
 
             exportVertex = ExportVertex()
@@ -593,6 +595,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v2.co
             exportVertex.normal = v2.normal if (face.use_smooth) else face.normal
+            exportVertex.binormal = v2.normal if (face.use_smooth) else face.normal
+            exportVertex.tangent = v2.normal if (face.use_smooth) else face.normal
             exportVertexArray.append(exportVertex)
 
             exportVertex = ExportVertex()
@@ -600,6 +604,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v3.co
             exportVertex.normal = v3.normal if (face.use_smooth) else face.normal
+            exportVertex.binormal = v3.normal if (face.use_smooth) else face.normal
+            exportVertex.tangent = v3.normal if (face.use_smooth) else face.normal
             exportVertexArray.append(exportVertex)
 
             materialTable.append(face.material_index)
@@ -618,6 +624,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v1.co
                 exportVertex.normal = v1.normal if (face.use_smooth) else face.normal
+                exportVertex.binormal = v1.normal if (face.use_smooth) else face.normal
+                exportVertex.tangent = v1.normal if (face.use_smooth) else face.normal
                 exportVertexArray.append(exportVertex)
 
                 exportVertex = ExportVertex()
@@ -625,6 +633,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v2.co
                 exportVertex.normal = v2.normal if (face.use_smooth) else face.normal
+                exportVertex.binormal = v2.normal if (face.use_smooth) else face.normal
+                exportVertex.tangent = v2.normal if (face.use_smooth) else face.normal
                 exportVertexArray.append(exportVertex)
 
                 exportVertex = ExportVertex()
@@ -632,6 +642,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v3.co
                 exportVertex.normal = v3.normal if (face.use_smooth) else face.normal
+                exportVertex.binormal = v3.normal if (face.use_smooth) else face.normal
+                exportVertex.tangent = v3.normal if (face.use_smooth) else face.normal
                 exportVertexArray.append(exportVertex)
 
                 materialTable.append(face.material_index)
@@ -2227,6 +2239,36 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
         self.WriteInt(vertexCount)
         self.IndentWrite(B"{\n", 0, True)
         self.WriteVertexArray3D(unifiedVertexArray, "normal")
+        self.IndentWrite(B"}\n")
+
+        self.indentLevel -= 1
+        self.IndentWrite(B"}\n")
+
+        # Write the binormal array.
+
+        self.IndentWrite(B"VertexArray (attrib = \"binormal\")\n")
+        self.IndentWrite(B"{\n")
+        self.indentLevel += 1
+
+        self.IndentWrite(B"float[3]\t\t// ")
+        self.WriteInt(vertexCount)
+        self.IndentWrite(B"{\n", 0, True)
+        self.WriteVertexArray3D(unifiedVertexArray, "binormal")
+        self.IndentWrite(B"}\n")
+
+        self.indentLevel -= 1
+        self.IndentWrite(B"}\n")
+
+        # Write the tangent array.
+
+        self.IndentWrite(B"VertexArray (attrib = \"tangent\")\n")
+        self.IndentWrite(B"{\n")
+        self.indentLevel += 1
+
+        self.IndentWrite(B"float[3]\t\t// ")
+        self.WriteInt(vertexCount)
+        self.IndentWrite(B"{\n", 0, True)
+        self.WriteVertexArray3D(unifiedVertexArray, "tangent")
         self.IndentWrite(B"}\n")
 
         self.indentLevel -= 1
