@@ -352,12 +352,13 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         lineCount = count >> 3
         for i in range(lineCount):
-            self.IndentWrite(B"", 1)
             for j in range(7):
+                self.IndentWrite(B"", 1)
                 self.WriteVector2D(getattr(vertexArray[k], attrib))
-                self.Write(B", ")
+                self.Write(B",\n")
                 k += 1
 
+            self.IndentWrite(B"", 1)
             self.WriteVector2D(getattr(vertexArray[k], attrib))
             k += 1
 
@@ -384,12 +385,13 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         lineCount = count >> 3
         for i in range(lineCount):
-            self.IndentWrite(B"", 1)
             for j in range(7):
+                self.IndentWrite(B"", 1)
                 self.WriteVector3D(getattr(vertexArray[k], attrib))
-                self.Write(B", ")
+                self.Write(B",\n");
                 k += 1
 
+            self.IndentWrite(B"", 1)
             self.WriteVector3D(getattr(vertexArray[k], attrib))
             k += 1
 
