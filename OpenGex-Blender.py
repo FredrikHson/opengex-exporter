@@ -369,12 +369,13 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         count &= 7
         if (count != 0):
-            self.IndentWrite(B"", 1)
             for j in range(count - 1):
+                self.IndentWrite(B"", 1)
                 self.WriteVector2D(getattr(vertexArray[k], attrib))
-                self.Write(B", ")
+                self.Write(B",\n")
                 k += 1
 
+            self.IndentWrite(B"", 1)
             self.WriteVector2D(getattr(vertexArray[k], attrib))
             self.Write(B"\n")
 
@@ -402,12 +403,13 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         count &= 7
         if (count != 0):
-            self.IndentWrite(B"", 1)
             for j in range(count - 1):
+                self.IndentWrite(B"", 1)
                 self.WriteVector3D(getattr(vertexArray[k], attrib))
-                self.Write(B", ")
+                self.Write(B",\n")
                 k += 1
 
+            self.IndentWrite(B"", 1)
             self.WriteVector3D(getattr(vertexArray[k], attrib))
             self.Write(B"\n")
 
@@ -569,11 +571,12 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         # This function deindexes all vertex positions, colors, and texcoords.
         # Three separate ExportVertex structures are created for each triangle.
-
+        print(mesh.uv_layers[0])
+        mesh.calc_tangents(mesh.uv_layers[0].name)
         vertexArray = mesh.vertices
         exportVertexArray = []
         faceIndex = 0
-
+        loopIndex = 0
         for face in mesh.tessfaces:
             k1 = face.vertices[0]
             k2 = face.vertices[1]
@@ -583,13 +586,16 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             v2 = vertexArray[k2]
             v3 = vertexArray[k3]
 
+            print(mesh.loops[loopIndex].tangent)
+            print(v1.normal)
             exportVertex = ExportVertex()
             exportVertex.vertexIndex = k1
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v1.co
             exportVertex.normal = v1.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = v1.normal if (face.use_smooth) else face.normal
-            exportVertex.tangent = v1.normal if (face.use_smooth) else face.normal
+            exportVertex.binormal = mesh.loops[loopIndex].bitangent
+            exportVertex.tangent = mesh.loops[loopIndex].tangent
+            loopIndex+=1
             exportVertexArray.append(exportVertex)
 
             exportVertex = ExportVertex()
@@ -597,17 +603,19 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v2.co
             exportVertex.normal = v2.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = v2.normal if (face.use_smooth) else face.normal
-            exportVertex.tangent = v2.normal if (face.use_smooth) else face.normal
+            exportVertex.binormal = mesh.loops[loopIndex].bitangent
+            exportVertex.tangent = mesh.loops[loopIndex].tangent
+            loopIndex+=1
             exportVertexArray.append(exportVertex)
 
             exportVertex = ExportVertex()
             exportVertex.vertexIndex = k3
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v3.co
-            exportVertex.normal = v3.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = v3.normal if (face.use_smooth) else face.normal
-            exportVertex.tangent = v3.normal if (face.use_smooth) else face.normal
+            exportVertex.normal = v3.normal
+            exportVertex.binormal = mesh.loops[loopIndex].bitangent
+            exportVertex.tangent = mesh.loops[loopIndex].tangent
+            loopIndex+=1
             exportVertexArray.append(exportVertex)
 
             materialTable.append(face.material_index)
@@ -625,27 +633,30 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.vertexIndex = k1
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v1.co
-                exportVertex.normal = v1.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = v1.normal if (face.use_smooth) else face.normal
-                exportVertex.tangent = v1.normal if (face.use_smooth) else face.normal
+                exportVertex.normal = v1.normal
+                exportVertex.binormal = mesh.loops[loopIndex].bitangent
+                exportVertex.tangent = mesh.loops[loopIndex].tangent
+                loopIndex+=1
                 exportVertexArray.append(exportVertex)
 
                 exportVertex = ExportVertex()
                 exportVertex.vertexIndex = k2
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v2.co
-                exportVertex.normal = v2.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = v2.normal if (face.use_smooth) else face.normal
-                exportVertex.tangent = v2.normal if (face.use_smooth) else face.normal
+                exportVertex.normal = v2.normal
+                exportVertex.binormal = mesh.loops[loopIndex].bitangent
+                exportVertex.tangent = mesh.loops[loopIndex].tangent
+                loopIndex+=1
                 exportVertexArray.append(exportVertex)
 
                 exportVertex = ExportVertex()
                 exportVertex.vertexIndex = k3
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v3.co
-                exportVertex.normal = v3.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = v3.normal if (face.use_smooth) else face.normal
-                exportVertex.tangent = v3.normal if (face.use_smooth) else face.normal
+                exportVertex.normal = v3.normal
+                exportVertex.binormal = mesh.loops[loopIndex].bitangent
+                exportVertex.tangent = mesh.loops[loopIndex].tangent
+                loopIndex+=1
                 exportVertexArray.append(exportVertex)
 
                 materialTable.append(face.material_index)
