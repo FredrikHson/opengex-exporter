@@ -592,8 +592,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v1.co
             exportVertex.normal = v1.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else v1.normal
-            exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else v1.normal
+            exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+            exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
             loopIndex+=1
             exportVertexArray.append(exportVertex)
 
@@ -602,8 +602,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v2.co
             exportVertex.normal = v2.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = mesh.loops[loopIndex].bitangenti if ( hasuvs ) else v2.normal
-            exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else v2.normal
+            exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+            exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
             loopIndex+=1
             exportVertexArray.append(exportVertex)
 
@@ -612,8 +612,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v3.co
             exportVertex.normal = v3.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else v3.normal
-            exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else v3.normal
+            exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+            exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
             loopIndex+=1
             exportVertexArray.append(exportVertex)
 
@@ -633,8 +633,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v1.co
                 exportVertex.normal = v1.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else v1.normal
-                exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else v1.normal
+                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+                exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
 
                 loopIndex+=1
                 exportVertexArray.append(exportVertex)
@@ -644,8 +644,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v2.co
                 exportVertex.normal = v2.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else v2.normal
-                exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else v2.normal
+                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+                exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
 
                 loopIndex+=1
                 exportVertexArray.append(exportVertex)
@@ -655,8 +655,8 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v3.co
                 exportVertex.normal = v3.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else v3.normal
-                exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else v3.normal
+                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+                exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
 
                 loopIndex+=1
                 exportVertexArray.append(exportVertex)
