@@ -59,7 +59,7 @@ axisName = [B"x", B"y", B"z"]
 
 
 class ExportVertex:
-    __slots__ = ("hash", "vertexIndex", "faceIndex", "position", "normal", "binormal", "tangent", "color", "texcoord0", "texcoord1")
+    __slots__ = ("hash", "vertexIndex", "faceIndex", "position", "normal", "binormalsign", "tangent", "color", "texcoord0", "texcoord1")
 
     def __init__(self):
         self.color = [1.0, 1.0, 1.0]
@@ -73,9 +73,9 @@ class ExportVertex:
             return (False)
         if (self.normal != v.normal):
             return (False)
-        if (self.normal != v.binormal):
+        if (self.binormalsign != v.binormalsign):
             return (False)
-        if (self.normal != v.tangent):
+        if (self.tangent != v.tangent):
             return (False)
         if (self.color != v.color):
             return (False)
@@ -92,9 +92,7 @@ class ExportVertex:
         h = h * 21737 + hash(self.normal[0])
         h = h * 21737 + hash(self.normal[1])
         h = h * 21737 + hash(self.normal[2])
-        h = h * 21737 + hash(self.binormal[0])
-        h = h * 21737 + hash(self.binormal[1])
-        h = h * 21737 + hash(self.binormal[2])
+        h = h * 21737 + hash(self.binormalsign)
         h = h * 21737 + hash(self.tangent[0])
         h = h * 21737 + hash(self.tangent[1])
         h = h * 21737 + hash(self.tangent[2])
@@ -345,6 +343,38 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
         self.WriteFloat(quaternion[0])
         self.Write(B"}")
 
+    def WriteVertexArray1D(self, vertexArray, attrib):
+        count = len(vertexArray)
+        k = 0
+
+        lineCount = count >> 3
+        for i in range(lineCount):
+            self.IndentWrite(B"", 1)
+            for j in range(7):
+                self.WriteFloat(getattr(vertexArray[k], attrib))
+                self.Write(B", ")
+                k += 1
+
+            self.Write(B"")
+            self.WriteFloat(getattr(vertexArray[k], attrib))
+            k += 1
+
+            if (i * 8 < count - 8):
+                self.Write(B",\n")
+            else:
+                self.Write(B"\n")
+
+        count &= 7
+        if (count != 0):
+            for j in range(count - 1):
+                self.IndentWrite(B"", 1)
+                self.WriteFloat(getattr(vertexArray[k], attrib))
+                self.Write(B",\n")
+                k += 1
+
+            self.IndentWrite(B"", 1)
+            self.WriteFloat(getattr(vertexArray[k], attrib))
+            self.Write(B"\n")
 
     def WriteVertexArray2D(self, vertexArray, attrib):
         count = len(vertexArray)
@@ -594,7 +624,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v1.co
             exportVertex.normal = v1.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+            exportVertex.binormalsign = mesh.loops[loopIndex].bitangent_sign if ( hasuvs ) else 1
             exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
             loopIndex+=1
             exportVertexArray.append(exportVertex)
@@ -604,7 +634,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v2.co
             exportVertex.normal = v2.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+            exportVertex.binormalsign = mesh.loops[loopIndex].bitangent_sign if ( hasuvs ) else 1
             exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
             loopIndex+=1
             exportVertexArray.append(exportVertex)
@@ -614,7 +644,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             exportVertex.faceIndex = faceIndex
             exportVertex.position = v3.co
             exportVertex.normal = v3.normal if (face.use_smooth) else face.normal
-            exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+            exportVertex.binormalsign = mesh.loops[loopIndex].bitangent_sign if ( hasuvs ) else 1
             exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
             loopIndex+=1
             exportVertexArray.append(exportVertex)
@@ -635,7 +665,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v1.co
                 exportVertex.normal = v1.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+                exportVertex.binormalsign = mesh.loops[loopIndex].bitangent_sign if ( hasuvs ) else 1
                 exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
 
                 loopIndex+=1
@@ -646,7 +676,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v2.co
                 exportVertex.normal = v2.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+                exportVertex.binormalsign = mesh.loops[loopIndex].bitangent_sign if ( hasuvs ) else 1
                 exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
 
                 loopIndex+=1
@@ -657,7 +687,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.faceIndex = faceIndex
                 exportVertex.position = v3.co
                 exportVertex.normal = v3.normal if (face.use_smooth) else face.normal
-                exportVertex.binormal = mesh.loops[loopIndex].bitangent if ( hasuvs ) else exportVertex.normal
+                exportVertex.binormalsign = mesh.loops[loopIndex].bitangent_sign if ( hasuvs ) else 1
                 exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
 
                 loopIndex+=1
@@ -2261,16 +2291,16 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
         self.indentLevel -= 1
         self.IndentWrite(B"}\n")
 
-        # Write the binormal array.
+        # Write the binormalsign array.
 
-        self.IndentWrite(B"VertexArray (attrib = \"binormal\")\n")
+        self.IndentWrite(B"VertexArray (attrib = \"binormalsign\")\n")
         self.IndentWrite(B"{\n")
         self.indentLevel += 1
 
-        self.IndentWrite(B"float[3]\t\t// ")
+        self.IndentWrite(B"float\t\t// ")
         self.WriteInt(vertexCount)
         self.IndentWrite(B"{\n", 0, True)
-        self.WriteVertexArray3D(unifiedVertexArray, "binormal")
+        self.WriteVertexArray1D(unifiedVertexArray, "binormalsign")
         self.IndentWrite(B"}\n")
 
         self.indentLevel -= 1
