@@ -498,12 +498,13 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         lineCount = count >> 4
         for i in range(lineCount):
-            self.IndentWrite(B"", 1)
             for j in range(15):
+                self.IndentWrite(B"", 1)
                 self.WriteTriangle(triangleIndex, indexTable)
-                self.Write(B", ")
+                self.Write(B",\n")
                 triangleIndex += 1
 
+            self.IndentWrite(B"", 1)
             self.WriteTriangle(triangleIndex, indexTable)
             triangleIndex += 1
 
@@ -514,12 +515,13 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         count &= 15
         if (count != 0):
-            self.IndentWrite(B"", 1)
             for j in range(count - 1):
+                self.IndentWrite(B"", 1)
                 self.WriteTriangle(triangleIndex, indexTable)
-                self.Write(B", ")
+                self.Write(B",\n")
                 triangleIndex += 1
 
+            self.IndentWrite(B"", 1)
             self.WriteTriangle(triangleIndex, indexTable)
             self.Write(B"\n")
 
