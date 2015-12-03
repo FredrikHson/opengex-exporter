@@ -114,6 +114,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
     option_export_selection = bpy.props.BoolProperty(name = "Export Selection Only", description = "Export only selected objects", default = True)
     option_sample_animation = bpy.props.BoolProperty(name = "Force Sampled Animation", description = "Always export animation as per-frame samples", default = True)
+    option_export_matnames = bpy.props.BoolProperty(name = "Material Names Only", description = "skip the material colors+textures", default = True)
 
 
     def Write(self, text):
@@ -2738,61 +2739,61 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 self.IndentWrite(B"Name {string {\"")
                 self.Write(bytes(material.name, "UTF-8"))
                 self.Write(B"\"}}\n\n")
+            if (self.option_export_matnames == False):
+                intensity = material.diffuse_intensity
+                diffuse = [material.diffuse_color[0] * intensity, material.diffuse_color[1] * intensity, material.diffuse_color[2] * intensity]
 
-            intensity = material.diffuse_intensity
-            diffuse = [material.diffuse_color[0] * intensity, material.diffuse_color[1] * intensity, material.diffuse_color[2] * intensity]
-
-            self.IndentWrite(B"Color (attrib = \"diffuse\") {float[3] {")
-            self.WriteColor(diffuse)
-            self.Write(B"}}\n")
-
-            intensity = material.specular_intensity
-            specular = [material.specular_color[0] * intensity, material.specular_color[1] * intensity, material.specular_color[2] * intensity]
-
-            if ((specular[0] > 0.0) or (specular[1] > 0.0) or (specular[2] > 0.0)):
-                self.IndentWrite(B"Color (attrib = \"specular\") {float[3] {")
-                self.WriteColor(specular)
+                self.IndentWrite(B"Color (attrib = \"diffuse\") {float[3] {")
+                self.WriteColor(diffuse)
                 self.Write(B"}}\n")
 
-                self.IndentWrite(B"Param (attrib = \"specular_power\") {float {")
-                self.WriteFloat(material.specular_hardness)
-                self.Write(B"}}\n")
+                intensity = material.specular_intensity
+                specular = [material.specular_color[0] * intensity, material.specular_color[1] * intensity, material.specular_color[2] * intensity]
 
-            emission = material.emit
-            if (emission > 0.0):
-                self.IndentWrite(B"Color (attrib = \"emission\") {float[3] {")
-                self.WriteColor([emission, emission, emission])
-                self.Write(B"}}\n")
+                if ((specular[0] > 0.0) or (specular[1] > 0.0) or (specular[2] > 0.0)):
+                    self.IndentWrite(B"Color (attrib = \"specular\") {float[3] {")
+                    self.WriteColor(specular)
+                    self.Write(B"}}\n")
 
-            diffuseTexture = None
-            specularTexture = None
-            emissionTexture = None
-            transparencyTexture = None
-            normalTexture = None
+                    self.IndentWrite(B"Param (attrib = \"specular_power\") {float {")
+                    self.WriteFloat(material.specular_hardness)
+                    self.Write(B"}}\n")
 
-            for textureSlot in material.texture_slots:
-                if ((textureSlot) and (textureSlot.use) and (textureSlot.texture.type == "IMAGE")):
-                    if (((textureSlot.use_map_color_diffuse) or (textureSlot.use_map_diffuse)) and (not diffuseTexture)):
-                        diffuseTexture = textureSlot
-                    elif (((textureSlot.use_map_color_spec) or (textureSlot.use_map_specular)) and (not specularTexture)):
-                        specularTexture = textureSlot
-                    elif ((textureSlot.use_map_emit) and (not emissionTexture)):
-                        emissionTexture = textureSlot
-                    elif ((textureSlot.use_map_translucency) and (not transparencyTexture)):
-                        transparencyTexture = textureSlot
-                    elif ((textureSlot.use_map_normal) and (not normalTexture)):
-                        normalTexture = textureSlot
+                emission = material.emit
+                if (emission > 0.0):
+                    self.IndentWrite(B"Color (attrib = \"emission\") {float[3] {")
+                    self.WriteColor([emission, emission, emission])
+                    self.Write(B"}}\n")
 
-            if (diffuseTexture):
-                self.ExportTexture(diffuseTexture, B"diffuse")
-            if (specularTexture):
-                self.ExportTexture(specularTexture, B"specular")
-            if (emissionTexture):
-                self.ExportTexture(emissionTexture, B"emission")
-            if (transparencyTexture):
-                self.ExportTexture(transparencyTexture, B"transparency")
-            if (normalTexture):
-                self.ExportTexture(normalTexture, B"normal")
+                diffuseTexture = None
+                specularTexture = None
+                emissionTexture = None
+                transparencyTexture = None
+                normalTexture = None
+
+                for textureSlot in material.texture_slots:
+                    if ((textureSlot) and (textureSlot.use) and (textureSlot.texture.type == "IMAGE")):
+                        if (((textureSlot.use_map_color_diffuse) or (textureSlot.use_map_diffuse)) and (not diffuseTexture)):
+                            diffuseTexture = textureSlot
+                        elif (((textureSlot.use_map_color_spec) or (textureSlot.use_map_specular)) and (not specularTexture)):
+                            specularTexture = textureSlot
+                        elif ((textureSlot.use_map_emit) and (not emissionTexture)):
+                            emissionTexture = textureSlot
+                        elif ((textureSlot.use_map_translucency) and (not transparencyTexture)):
+                            transparencyTexture = textureSlot
+                        elif ((textureSlot.use_map_normal) and (not normalTexture)):
+                            normalTexture = textureSlot
+
+                if (diffuseTexture):
+                    self.ExportTexture(diffuseTexture, B"diffuse")
+                if (specularTexture):
+                    self.ExportTexture(specularTexture, B"specular")
+                if (emissionTexture):
+                    self.ExportTexture(emissionTexture, B"emission")
+                if (transparencyTexture):
+                    self.ExportTexture(transparencyTexture, B"transparency")
+                if (normalTexture):
+                    self.ExportTexture(normalTexture, B"normal")
 
             self.indentLevel -= 1
             self.Write(B"}\n")
