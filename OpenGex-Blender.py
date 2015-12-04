@@ -5,8 +5,9 @@
 #
 #  Export plugin for Blender
 #  by Eric Lengyel
+#  modifications by Fredrik Hansson
 #
-#  Version 1.1.2.3
+#  Version 1.1.2.4
 #
 #  Copyright 2015, Terathon Software LLC
 #
@@ -21,8 +22,8 @@
 bl_info = {
     "name": "OpenGEX format (.ogex)",
     "description": "Terathon Software OpenGEX Exporter",
-    "author": "Eric Lengyel",
-    "version": (1, 1, 2, 3),
+    "author": "Eric Lengyel, Fredrik Hansson",
+    "version": (1, 1, 2, 4),
     "location": "File > Import-Export",
     "wiki_url": "http://opengex.org/",
     "category": "Import-Export"}
@@ -661,6 +662,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 v2 = vertexArray[k2]
                 v3 = vertexArray[k3]
 
+                loopIndex-=3
                 exportVertex = ExportVertex()
                 exportVertex.vertexIndex = k1
                 exportVertex.faceIndex = faceIndex
@@ -669,7 +671,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
                 exportVertex.binormalsign = mesh.loops[loopIndex].bitangent_sign if ( hasuvs ) else 1
                 exportVertex.tangent = mesh.loops[loopIndex].tangent if ( hasuvs ) else exportVertex.normal
 
-                loopIndex+=1
+                loopIndex+=2
                 exportVertexArray.append(exportVertex)
 
                 exportVertex = ExportVertex()
