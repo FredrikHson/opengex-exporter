@@ -1332,206 +1332,174 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         mode = node.rotation_mode
         sampledAnimation = ((self.sampleAnimationFlag) or (mode == "QUATERNION") or (mode == "AXIS_ANGLE"))
-
-        if ((not sampledAnimation) and (node.animation_data)):
-            action = node.animation_data.action
-            if (action):
-                for fcurve in action.fcurves:
-                    kind = OpenGexExporter.ClassifyAnimationCurve(fcurve)
-                    if (kind != kAnimationSampled):
-                        if (fcurve.data_path == "location"):
-                            for i in range(3):
-                                if ((fcurve.array_index == i) and (not posAnimCurve[i])):
-                                    posAnimCurve[i] = fcurve
-                                    posAnimKind[i] = kind
-                                    if (OpenGexExporter.AnimationPresent(fcurve, kind)):
-                                        posAnimated[i] = True
-                        elif (fcurve.data_path == "delta_location"):
-                            for i in range(3):
-                                if ((fcurve.array_index == i) and (not deltaPosAnimCurve[i])):
-                                    deltaPosAnimCurve[i] = fcurve
-                                    deltaPosAnimKind[i] = kind
-                                    if (OpenGexExporter.AnimationPresent(fcurve, kind)):
-                                        deltaPosAnimated[i] = True
-                        elif (fcurve.data_path == "rotation_euler"):
-                            for i in range(3):
-                                if ((fcurve.array_index == i) and (not rotAnimCurve[i])):
-                                    rotAnimCurve[i] = fcurve
-                                    rotAnimKind[i] = kind
-                                    if (OpenGexExporter.AnimationPresent(fcurve, kind)):
-                                        rotAnimated[i] = True
-                        elif (fcurve.data_path == "delta_rotation_euler"):
-                            for i in range(3):
-                                if ((fcurve.array_index == i) and (not deltaRotAnimCurve[i])):
-                                    deltaRotAnimCurve[i] = fcurve
-                                    deltaRotAnimKind[i] = kind
-                                    if (OpenGexExporter.AnimationPresent(fcurve, kind)):
-                                        deltaRotAnimated[i] = True
-                        elif (fcurve.data_path == "scale"):
-                            for i in range(3):
-                                if ((fcurve.array_index == i) and (not sclAnimCurve[i])):
-                                    sclAnimCurve[i] = fcurve
-                                    sclAnimKind[i] = kind
-                                    if (OpenGexExporter.AnimationPresent(fcurve, kind)):
-                                        sclAnimated[i] = True
-                        elif (fcurve.data_path == "delta_scale"):
-                            for i in range(3):
-                                if ((fcurve.array_index == i) and (not deltaSclAnimCurve[i])):
-                                    deltaSclAnimCurve[i] = fcurve
-                                    deltaSclAnimKind[i] = kind
-                                    if (OpenGexExporter.AnimationPresent(fcurve, kind)):
-                                        deltaSclAnimated[i] = True
-                        elif ((fcurve.data_path == "rotation_axis_angle") or (fcurve.data_path == "rotation_quaternion") or (fcurve.data_path == "delta_rotation_quaternion")):
+        if(option_export_animations)
+            if ((not sampledAnimation) and (node.animation_data)):
+                action = node.animation_data.action
+                if (action):
+                    for fcurve in action.fcurves:
+                        kind = OpenGexExporter.ClassifyAnimationCurve(fcurve)
+                        if (kind != kAnimationSampled):
+                            if (fcurve.data_path == "location"):
+                                for i in range(3):
+                                    if ((fcurve.array_index == i) and (not posAnimCurve[i])):
+                                        posAnimCurve[i] = fcurve
+                                        posAnimKind[i] = kind
+                                        if (OpenGexExporter.AnimationPresent(fcurve, kind)):
+                                            posAnimated[i] = True
+                            elif (fcurve.data_path == "delta_location"):
+                                for i in range(3):
+                                    if ((fcurve.array_index == i) and (not deltaPosAnimCurve[i])):
+                                        deltaPosAnimCurve[i] = fcurve
+                                        deltaPosAnimKind[i] = kind
+                                        if (OpenGexExporter.AnimationPresent(fcurve, kind)):
+                                            deltaPosAnimated[i] = True
+                            elif (fcurve.data_path == "rotation_euler"):
+                                for i in range(3):
+                                    if ((fcurve.array_index == i) and (not rotAnimCurve[i])):
+                                        rotAnimCurve[i] = fcurve
+                                        rotAnimKind[i] = kind
+                                        if (OpenGexExporter.AnimationPresent(fcurve, kind)):
+                                            rotAnimated[i] = True
+                            elif (fcurve.data_path == "delta_rotation_euler"):
+                                for i in range(3):
+                                    if ((fcurve.array_index == i) and (not deltaRotAnimCurve[i])):
+                                        deltaRotAnimCurve[i] = fcurve
+                                        deltaRotAnimKind[i] = kind
+                                        if (OpenGexExporter.AnimationPresent(fcurve, kind)):
+                                            deltaRotAnimated[i] = True
+                            elif (fcurve.data_path == "scale"):
+                                for i in range(3):
+                                    if ((fcurve.array_index == i) and (not sclAnimCurve[i])):
+                                        sclAnimCurve[i] = fcurve
+                                        sclAnimKind[i] = kind
+                                        if (OpenGexExporter.AnimationPresent(fcurve, kind)):
+                                            sclAnimated[i] = True
+                            elif (fcurve.data_path == "delta_scale"):
+                                for i in range(3):
+                                    if ((fcurve.array_index == i) and (not deltaSclAnimCurve[i])):
+                                        deltaSclAnimCurve[i] = fcurve
+                                        deltaSclAnimKind[i] = kind
+                                        if (OpenGexExporter.AnimationPresent(fcurve, kind)):
+                                            deltaSclAnimated[i] = True
+                            elif ((fcurve.data_path == "rotation_axis_angle") or (fcurve.data_path == "rotation_quaternion") or (fcurve.data_path == "delta_rotation_quaternion")):
+                                sampledAnimation = True
+                                break
+                        else:
                             sampledAnimation = True
                             break
-                    else:
-                        sampledAnimation = True
-                        break
 
-        positionAnimated = posAnimated[0] | posAnimated[1] | posAnimated[2]
-        rotationAnimated = rotAnimated[0] | rotAnimated[1] | rotAnimated[2]
-        scaleAnimated = sclAnimated[0] | sclAnimated[1] | sclAnimated[2]
+            positionAnimated = posAnimated[0] | posAnimated[1] | posAnimated[2]
+            rotationAnimated = rotAnimated[0] | rotAnimated[1] | rotAnimated[2]
+            scaleAnimated = sclAnimated[0] | sclAnimated[1] | sclAnimated[2]
 
-        deltaPositionAnimated = deltaPosAnimated[0] | deltaPosAnimated[1] | deltaPosAnimated[2]
-        deltaRotationAnimated = deltaRotAnimated[0] | deltaRotAnimated[1] | deltaRotAnimated[2]
-        deltaScaleAnimated = deltaSclAnimated[0] | deltaSclAnimated[1] | deltaSclAnimated[2]
+            deltaPositionAnimated = deltaPosAnimated[0] | deltaPosAnimated[1] | deltaPosAnimated[2]
+            deltaRotationAnimated = deltaRotAnimated[0] | deltaRotAnimated[1] | deltaRotAnimated[2]
+            deltaScaleAnimated = deltaSclAnimated[0] | deltaSclAnimated[1] | deltaSclAnimated[2]
 
-        if ((sampledAnimation) or ((not positionAnimated) and (not rotationAnimated) and (not scaleAnimated) and (not deltaPositionAnimated) and (not deltaRotationAnimated) and (not deltaScaleAnimated))):
+        if(option_export_animations):
+            if ((sampledAnimation) or ((not positionAnimated) and (not rotationAnimated) and (not scaleAnimated) and (not deltaPositionAnimated) and (not deltaRotationAnimated) and (not deltaScaleAnimated))):
 
-            # If there's no keyframe animation at all, then write the node transform as a single 4x4 matrix.
-            # We might still be exporting sampled animation below.
+                # If there's no keyframe animation at all, then write the node transform as a single 4x4 matrix.
+                # We might still be exporting sampled animation below.
 
-            self.IndentWrite(B"Transform")
+                self.IndentWrite(B"Transform")
 
-            if (sampledAnimation):
-                self.Write(B" %transform")
+                if (sampledAnimation):
+                    self.Write(B" %transform")
 
-            self.IndentWrite(B"{\n", 0, True)
-            self.indentLevel += 1
+                self.IndentWrite(B"{\n", 0, True)
+                self.indentLevel += 1
 
-            self.IndentWrite(B"float[16]\n")
-            self.IndentWrite(B"{\n")
-            self.WriteMatrix(node.matrix_local)
-            self.IndentWrite(B"}\n")
-
-            self.indentLevel -= 1
-            self.IndentWrite(B"}\n")
-
-            if (sampledAnimation):
-                self.ExportNodeSampledAnimation(node, scene)
-
-        else:
-            structFlag = False
-
-            deltaTranslation = node.delta_location
-            if (deltaPositionAnimated):
-
-                # When the delta location is animated, write the x, y, and z components separately
-                # so they can be targeted by different tracks having different sets of keys.
-
-                for i in range(3):
-                    pos = deltaTranslation[i]
-                    if ((deltaPosAnimated[i]) or (math.fabs(pos) > kExportEpsilon)):
-                        self.IndentWrite(B"Translation %", 0, structFlag)
-                        self.Write(deltaSubtranslationName[i])
-                        self.Write(B" (kind = \"")
-                        self.Write(axisName[i])
-                        self.Write(B"\")\n")
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float {", 1)
-                        self.WriteFloat(pos)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
-
-                        structFlag = True
-
-            elif ((math.fabs(deltaTranslation[0]) > kExportEpsilon) or (math.fabs(deltaTranslation[1]) > kExportEpsilon) or (math.fabs(deltaTranslation[2]) > kExportEpsilon)):
-                self.IndentWrite(B"Translation\n")
+                self.IndentWrite(B"float[16]\n")
                 self.IndentWrite(B"{\n")
-                self.IndentWrite(B"float[3] {", 1)
-                self.WriteVector3D(deltaTranslation)
-                self.Write(B"}")
-                self.IndentWrite(B"}\n", 0, True)
+                self.WriteMatrix(node.matrix_local)
+                self.IndentWrite(B"}\n")
 
-                structFlag = True
+                self.indentLevel -= 1
+                self.IndentWrite(B"}\n")
 
-            translation = node.location
-            if (positionAnimated):
-
-                # When the location is animated, write the x, y, and z components separately
-                # so they can be targeted by different tracks having different sets of keys.
-
-                for i in range(3):
-                    pos = translation[i]
-                    if ((posAnimated[i]) or (math.fabs(pos) > kExportEpsilon)):
-                        self.IndentWrite(B"Translation %", 0, structFlag)
-                        self.Write(subtranslationName[i])
-                        self.Write(B" (kind = \"")
-                        self.Write(axisName[i])
-                        self.Write(B"\")\n")
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float {", 1)
-                        self.WriteFloat(pos)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
-
-                        structFlag = True
-
-            elif ((math.fabs(translation[0]) > kExportEpsilon) or (math.fabs(translation[1]) > kExportEpsilon) or (math.fabs(translation[2]) > kExportEpsilon)):
-                self.IndentWrite(B"Translation\n")
-                self.IndentWrite(B"{\n")
-                self.IndentWrite(B"float[3] {", 1)
-                self.WriteVector3D(translation)
-                self.Write(B"}")
-                self.IndentWrite(B"}\n", 0, True)
-
-                structFlag = True
-
-            if (deltaRotationAnimated):
-
-                # When the delta rotation is animated, write three separate Euler angle rotations
-                # so they can be targeted by different tracks having different sets of keys.
-
-                for i in range(3):
-                    axis = ord(mode[2 - i]) - 0x58
-                    angle = node.delta_rotation_euler[axis]
-                    if ((deltaRotAnimated[axis]) or (math.fabs(angle) > kExportEpsilon)):
-                        self.IndentWrite(B"Rotation %", 0, structFlag)
-                        self.Write(deltaSubrotationName[axis])
-                        self.Write(B" (kind = \"")
-                        self.Write(axisName[axis])
-                        self.Write(B"\")\n")
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float {", 1)
-                        self.WriteFloat(angle)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
-
-                        structFlag = True
+                if (sampledAnimation):
+                    self.ExportNodeSampledAnimation(node, scene)
 
             else:
+                structFlag = False
 
-                # When the delta rotation is not animated, write it in the representation given by
-                # the node's current rotation mode. (There is no axis-angle delta rotation.)
+                deltaTranslation = node.delta_location
+                if (deltaPositionAnimated):
 
-                if (mode == "QUATERNION"):
-                    quaternion = node.delta_rotation_quaternion
-                    if ((math.fabs(quaternion[0] - 1.0) > kExportEpsilon) or (math.fabs(quaternion[1]) > kExportEpsilon) or (math.fabs(quaternion[2]) > kExportEpsilon) or (math.fabs(quaternion[3]) > kExportEpsilon)):
-                        self.IndentWrite(B"Rotation (kind = \"quaternion\")\n", 0, structFlag)
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float[4] {", 1)
-                        self.WriteQuaternion(quaternion)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
+                    # When the delta location is animated, write the x, y, and z components separately
+                    # so they can be targeted by different tracks having different sets of keys.
 
-                        structFlag = True
+                    for i in range(3):
+                        pos = deltaTranslation[i]
+                        if ((deltaPosAnimated[i]) or (math.fabs(pos) > kExportEpsilon)):
+                            self.IndentWrite(B"Translation %", 0, structFlag)
+                            self.Write(deltaSubtranslationName[i])
+                            self.Write(B" (kind = \"")
+                            self.Write(axisName[i])
+                            self.Write(B"\")\n")
+                            self.IndentWrite(B"{\n")
+                            self.IndentWrite(B"float {", 1)
+                            self.WriteFloat(pos)
+                            self.Write(B"}")
+                            self.IndentWrite(B"}\n", 0, True)
 
-                else:
+                            structFlag = True
+
+                elif ((math.fabs(deltaTranslation[0]) > kExportEpsilon) or (math.fabs(deltaTranslation[1]) > kExportEpsilon) or (math.fabs(deltaTranslation[2]) > kExportEpsilon)):
+                    self.IndentWrite(B"Translation\n")
+                    self.IndentWrite(B"{\n")
+                    self.IndentWrite(B"float[3] {", 1)
+                    self.WriteVector3D(deltaTranslation)
+                    self.Write(B"}")
+                    self.IndentWrite(B"}\n", 0, True)
+
+                    structFlag = True
+
+                translation = node.location
+                if (positionAnimated):
+
+                    # When the location is animated, write the x, y, and z components separately
+                    # so they can be targeted by different tracks having different sets of keys.
+
+                    for i in range(3):
+                        pos = translation[i]
+                        if ((posAnimated[i]) or (math.fabs(pos) > kExportEpsilon)):
+                            self.IndentWrite(B"Translation %", 0, structFlag)
+                            self.Write(subtranslationName[i])
+                            self.Write(B" (kind = \"")
+                            self.Write(axisName[i])
+                            self.Write(B"\")\n")
+                            self.IndentWrite(B"{\n")
+                            self.IndentWrite(B"float {", 1)
+                            self.WriteFloat(pos)
+                            self.Write(B"}")
+                            self.IndentWrite(B"}\n", 0, True)
+
+                            structFlag = True
+
+                elif ((math.fabs(translation[0]) > kExportEpsilon) or (math.fabs(translation[1]) > kExportEpsilon) or (math.fabs(translation[2]) > kExportEpsilon)):
+                    self.IndentWrite(B"Translation\n")
+                    self.IndentWrite(B"{\n")
+                    self.IndentWrite(B"float[3] {", 1)
+                    self.WriteVector3D(translation)
+                    self.Write(B"}")
+                    self.IndentWrite(B"}\n", 0, True)
+
+                    structFlag = True
+
+                if (deltaRotationAnimated):
+
+                    # When the delta rotation is animated, write three separate Euler angle rotations
+                    # so they can be targeted by different tracks having different sets of keys.
+
                     for i in range(3):
                         axis = ord(mode[2 - i]) - 0x58
                         angle = node.delta_rotation_euler[axis]
-                        if (math.fabs(angle) > kExportEpsilon):
-                            self.IndentWrite(B"Rotation (kind = \"", 0, structFlag)
+                        if ((deltaRotAnimated[axis]) or (math.fabs(angle) > kExportEpsilon)):
+                            self.IndentWrite(B"Rotation %", 0, structFlag)
+                            self.Write(deltaSubrotationName[axis])
+                            self.Write(B" (kind = \"")
                             self.Write(axisName[axis])
                             self.Write(B"\")\n")
                             self.IndentWrite(B"{\n")
@@ -1542,62 +1510,51 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
                             structFlag = True
 
-            if (rotationAnimated):
-
-                # When the rotation is animated, write three separate Euler angle rotations
-                # so they can be targeted by different tracks having different sets of keys.
-
-                for i in range(3):
-                    axis = ord(mode[2 - i]) - 0x58
-                    angle = node.rotation_euler[axis]
-                    if ((rotAnimated[axis]) or (math.fabs(angle) > kExportEpsilon)):
-                        self.IndentWrite(B"Rotation %", 0, structFlag)
-                        self.Write(subrotationName[axis])
-                        self.Write(B" (kind = \"")
-                        self.Write(axisName[axis])
-                        self.Write(B"\")\n")
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float {", 1)
-                        self.WriteFloat(angle)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
-
-                        structFlag = True
-
-            else:
-
-                # When the rotation is not animated, write it in the representation given by
-                # the node's current rotation mode.
-
-                if (mode == "QUATERNION"):
-                    quaternion = node.rotation_quaternion
-                    if ((math.fabs(quaternion[0] - 1.0) > kExportEpsilon) or (math.fabs(quaternion[1]) > kExportEpsilon) or (math.fabs(quaternion[2]) > kExportEpsilon) or (math.fabs(quaternion[3]) > kExportEpsilon)):
-                        self.IndentWrite(B"Rotation (kind = \"quaternion\")\n", 0, structFlag)
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float[4] {", 1)
-                        self.WriteQuaternion(quaternion)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
-
-                        structFlag = True
-
-                elif (mode == "AXIS_ANGLE"):
-                    if (math.fabs(node.rotation_axis_angle[0]) > kExportEpsilon):
-                        self.IndentWrite(B"Rotation (kind = \"axis\")\n", 0, structFlag)
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float[4] {", 1)
-                        self.WriteVector4D(node.rotation_axis_angle)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
-
-                        structFlag = True
-
                 else:
+
+                    # When the delta rotation is not animated, write it in the representation given by
+                    # the node's current rotation mode. (There is no axis-angle delta rotation.)
+
+                    if (mode == "QUATERNION"):
+                        quaternion = node.delta_rotation_quaternion
+                        if ((math.fabs(quaternion[0] - 1.0) > kExportEpsilon) or (math.fabs(quaternion[1]) > kExportEpsilon) or (math.fabs(quaternion[2]) > kExportEpsilon) or (math.fabs(quaternion[3]) > kExportEpsilon)):
+                            self.IndentWrite(B"Rotation (kind = \"quaternion\")\n", 0, structFlag)
+                            self.IndentWrite(B"{\n")
+                            self.IndentWrite(B"float[4] {", 1)
+                            self.WriteQuaternion(quaternion)
+                            self.Write(B"}")
+                            self.IndentWrite(B"}\n", 0, True)
+
+                            structFlag = True
+
+                    else:
+                        for i in range(3):
+                            axis = ord(mode[2 - i]) - 0x58
+                            angle = node.delta_rotation_euler[axis]
+                            if (math.fabs(angle) > kExportEpsilon):
+                                self.IndentWrite(B"Rotation (kind = \"", 0, structFlag)
+                                self.Write(axisName[axis])
+                                self.Write(B"\")\n")
+                                self.IndentWrite(B"{\n")
+                                self.IndentWrite(B"float {", 1)
+                                self.WriteFloat(angle)
+                                self.Write(B"}")
+                                self.IndentWrite(B"}\n", 0, True)
+
+                                structFlag = True
+
+                if (rotationAnimated):
+
+                    # When the rotation is animated, write three separate Euler angle rotations
+                    # so they can be targeted by different tracks having different sets of keys.
+
                     for i in range(3):
                         axis = ord(mode[2 - i]) - 0x58
                         angle = node.rotation_euler[axis]
-                        if (math.fabs(angle) > kExportEpsilon):
-                            self.IndentWrite(B"Rotation (kind = \"", 0, structFlag)
+                        if ((rotAnimated[axis]) or (math.fabs(angle) > kExportEpsilon)):
+                            self.IndentWrite(B"Rotation %", 0, structFlag)
+                            self.Write(subrotationName[axis])
+                            self.Write(B" (kind = \"")
                             self.Write(axisName[axis])
                             self.Write(B"\")\n")
                             self.IndentWrite(B"{\n")
@@ -1608,120 +1565,164 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
                             structFlag = True
 
-            deltaScale = node.delta_scale
-            if (deltaScaleAnimated):
+                else:
 
-                # When the delta scale is animated, write the x, y, and z components separately
-                # so they can be targeted by different tracks having different sets of keys.
+                    # When the rotation is not animated, write it in the representation given by
+                    # the node's current rotation mode.
 
-                for i in range(3):
-                    scl = deltaScale[i]
-                    if ((deltaSclAnimated[i]) or (math.fabs(scl) > kExportEpsilon)):
-                        self.IndentWrite(B"Scale %", 0, structFlag)
-                        self.Write(deltaSubscaleName[i])
-                        self.Write(B" (kind = \"")
-                        self.Write(axisName[i])
-                        self.Write(B"\")\n")
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float {", 1)
-                        self.WriteFloat(scl)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
+                    if (mode == "QUATERNION"):
+                        quaternion = node.rotation_quaternion
+                        if ((math.fabs(quaternion[0] - 1.0) > kExportEpsilon) or (math.fabs(quaternion[1]) > kExportEpsilon) or (math.fabs(quaternion[2]) > kExportEpsilon) or (math.fabs(quaternion[3]) > kExportEpsilon)):
+                            self.IndentWrite(B"Rotation (kind = \"quaternion\")\n", 0, structFlag)
+                            self.IndentWrite(B"{\n")
+                            self.IndentWrite(B"float[4] {", 1)
+                            self.WriteQuaternion(quaternion)
+                            self.Write(B"}")
+                            self.IndentWrite(B"}\n", 0, True)
 
-                        structFlag = True
+                            structFlag = True
 
-            elif ((math.fabs(deltaScale[0] - 1.0) > kExportEpsilon) or (math.fabs(deltaScale[1] - 1.0) > kExportEpsilon) or (math.fabs(deltaScale[2] - 1.0) > kExportEpsilon)):
-                self.IndentWrite(B"Scale\n", 0, structFlag)
+                    elif (mode == "AXIS_ANGLE"):
+                        if (math.fabs(node.rotation_axis_angle[0]) > kExportEpsilon):
+                            self.IndentWrite(B"Rotation (kind = \"axis\")\n", 0, structFlag)
+                            self.IndentWrite(B"{\n")
+                            self.IndentWrite(B"float[4] {", 1)
+                            self.WriteVector4D(node.rotation_axis_angle)
+                            self.Write(B"}")
+                            self.IndentWrite(B"}\n", 0, True)
+
+                            structFlag = True
+
+                    else:
+                        for i in range(3):
+                            axis = ord(mode[2 - i]) - 0x58
+                            angle = node.rotation_euler[axis]
+                            if (math.fabs(angle) > kExportEpsilon):
+                                self.IndentWrite(B"Rotation (kind = \"", 0, structFlag)
+                                self.Write(axisName[axis])
+                                self.Write(B"\")\n")
+                                self.IndentWrite(B"{\n")
+                                self.IndentWrite(B"float {", 1)
+                                self.WriteFloat(angle)
+                                self.Write(B"}")
+                                self.IndentWrite(B"}\n", 0, True)
+
+                                structFlag = True
+
+                deltaScale = node.delta_scale
+                if (deltaScaleAnimated):
+
+                    # When the delta scale is animated, write the x, y, and z components separately
+                    # so they can be targeted by different tracks having different sets of keys.
+
+                    for i in range(3):
+                        scl = deltaScale[i]
+                        if ((deltaSclAnimated[i]) or (math.fabs(scl) > kExportEpsilon)):
+                            self.IndentWrite(B"Scale %", 0, structFlag)
+                            self.Write(deltaSubscaleName[i])
+                            self.Write(B" (kind = \"")
+                            self.Write(axisName[i])
+                            self.Write(B"\")\n")
+                            self.IndentWrite(B"{\n")
+                            self.IndentWrite(B"float {", 1)
+                            self.WriteFloat(scl)
+                            self.Write(B"}")
+                            self.IndentWrite(B"}\n", 0, True)
+
+                            structFlag = True
+
+                elif ((math.fabs(deltaScale[0] - 1.0) > kExportEpsilon) or (math.fabs(deltaScale[1] - 1.0) > kExportEpsilon) or (math.fabs(deltaScale[2] - 1.0) > kExportEpsilon)):
+                    self.IndentWrite(B"Scale\n", 0, structFlag)
+                    self.IndentWrite(B"{\n")
+                    self.IndentWrite(B"float[3] {", 1)
+                    self.WriteVector3D(deltaScale)
+                    self.Write(B"}")
+                    self.IndentWrite(B"}\n", 0, True)
+
+                    structFlag = True
+
+                scale = node.scale
+                if (scaleAnimated):
+
+                    # When the scale is animated, write the x, y, and z components separately
+                    # so they can be targeted by different tracks having different sets of keys.
+
+                    for i in range(3):
+                        scl = scale[i]
+                        if ((sclAnimated[i]) or (math.fabs(scl) > kExportEpsilon)):
+                            self.IndentWrite(B"Scale %", 0, structFlag)
+                            self.Write(subscaleName[i])
+                            self.Write(B" (kind = \"")
+                            self.Write(axisName[i])
+                            self.Write(B"\")\n")
+                            self.IndentWrite(B"{\n")
+                            self.IndentWrite(B"float {", 1)
+                            self.WriteFloat(scl)
+                            self.Write(B"}")
+                            self.IndentWrite(B"}\n", 0, True)
+
+                            structFlag = True
+
+                elif ((math.fabs(scale[0] - 1.0) > kExportEpsilon) or (math.fabs(scale[1] - 1.0) > kExportEpsilon) or (math.fabs(scale[2] - 1.0) > kExportEpsilon)):
+                    self.IndentWrite(B"Scale\n", 0, structFlag)
+                    self.IndentWrite(B"{\n")
+                    self.IndentWrite(B"float[3] {", 1)
+                    self.WriteVector3D(scale)
+                    self.Write(B"}")
+                    self.IndentWrite(B"}\n", 0, True)
+
+                    structFlag = True
+
+                # Export the animation tracks.
+
+                self.IndentWrite(B"Animation (begin = ", 0, True)
+                self.WriteFloat((action.frame_range[0] - self.beginFrame) * self.frameTime)
+                self.Write(B", end = ")
+                self.WriteFloat((action.frame_range[1] - self.beginFrame) * self.frameTime)
+                self.Write(B")\n")
                 self.IndentWrite(B"{\n")
-                self.IndentWrite(B"float[3] {", 1)
-                self.WriteVector3D(deltaScale)
-                self.Write(B"}")
-                self.IndentWrite(B"}\n", 0, True)
+                self.indentLevel += 1
 
-                structFlag = True
+                structFlag = False
 
-            scale = node.scale
-            if (scaleAnimated):
+                if (positionAnimated):
+                    for i in range(3):
+                        if (posAnimated[i]):
+                            self.ExportAnimationTrack(posAnimCurve[i], posAnimKind[i], subtranslationName[i], structFlag)
+                            structFlag = True
 
-                # When the scale is animated, write the x, y, and z components separately
-                # so they can be targeted by different tracks having different sets of keys.
+                if (rotationAnimated):
+                    for i in range(3):
+                        if (rotAnimated[i]):
+                            self.ExportAnimationTrack(rotAnimCurve[i], rotAnimKind[i], subrotationName[i], structFlag)
+                            structFlag = True
 
-                for i in range(3):
-                    scl = scale[i]
-                    if ((sclAnimated[i]) or (math.fabs(scl) > kExportEpsilon)):
-                        self.IndentWrite(B"Scale %", 0, structFlag)
-                        self.Write(subscaleName[i])
-                        self.Write(B" (kind = \"")
-                        self.Write(axisName[i])
-                        self.Write(B"\")\n")
-                        self.IndentWrite(B"{\n")
-                        self.IndentWrite(B"float {", 1)
-                        self.WriteFloat(scl)
-                        self.Write(B"}")
-                        self.IndentWrite(B"}\n", 0, True)
+                if (scaleAnimated):
+                    for i in range(3):
+                        if (sclAnimated[i]):
+                            self.ExportAnimationTrack(sclAnimCurve[i], sclAnimKind[i], subscaleName[i], structFlag)
+                            structFlag = True
 
-                        structFlag = True
+                if (deltaPositionAnimated):
+                    for i in range(3):
+                        if (deltaPosAnimated[i]):
+                            self.ExportAnimationTrack(deltaPosAnimCurve[i], deltaPosAnimKind[i], deltaSubtranslationName[i], structFlag)
+                            structFlag = True
 
-            elif ((math.fabs(scale[0] - 1.0) > kExportEpsilon) or (math.fabs(scale[1] - 1.0) > kExportEpsilon) or (math.fabs(scale[2] - 1.0) > kExportEpsilon)):
-                self.IndentWrite(B"Scale\n", 0, structFlag)
-                self.IndentWrite(B"{\n")
-                self.IndentWrite(B"float[3] {", 1)
-                self.WriteVector3D(scale)
-                self.Write(B"}")
-                self.IndentWrite(B"}\n", 0, True)
+                if (deltaRotationAnimated):
+                    for i in range(3):
+                        if (deltaRotAnimated[i]):
+                            self.ExportAnimationTrack(deltaRotAnimCurve[i], deltaRotAnimKind[i], deltaSubrotationName[i], structFlag)
+                            structFlag = True
 
-                structFlag = True
+                if (deltaScaleAnimated):
+                    for i in range(3):
+                        if (deltaSclAnimated[i]):
+                            self.ExportAnimationTrack(deltaSclAnimCurve[i], deltaSclAnimKind[i], deltaSubscaleName[i], structFlag)
+                            structFlag = True
 
-            # Export the animation tracks.
-
-            self.IndentWrite(B"Animation (begin = ", 0, True)
-            self.WriteFloat((action.frame_range[0] - self.beginFrame) * self.frameTime)
-            self.Write(B", end = ")
-            self.WriteFloat((action.frame_range[1] - self.beginFrame) * self.frameTime)
-            self.Write(B")\n")
-            self.IndentWrite(B"{\n")
-            self.indentLevel += 1
-
-            structFlag = False
-
-            if (positionAnimated):
-                for i in range(3):
-                    if (posAnimated[i]):
-                        self.ExportAnimationTrack(posAnimCurve[i], posAnimKind[i], subtranslationName[i], structFlag)
-                        structFlag = True
-
-            if (rotationAnimated):
-                for i in range(3):
-                    if (rotAnimated[i]):
-                        self.ExportAnimationTrack(rotAnimCurve[i], rotAnimKind[i], subrotationName[i], structFlag)
-                        structFlag = True
-
-            if (scaleAnimated):
-                for i in range(3):
-                    if (sclAnimated[i]):
-                        self.ExportAnimationTrack(sclAnimCurve[i], sclAnimKind[i], subscaleName[i], structFlag)
-                        structFlag = True
-
-            if (deltaPositionAnimated):
-                for i in range(3):
-                    if (deltaPosAnimated[i]):
-                        self.ExportAnimationTrack(deltaPosAnimCurve[i], deltaPosAnimKind[i], deltaSubtranslationName[i], structFlag)
-                        structFlag = True
-
-            if (deltaRotationAnimated):
-                for i in range(3):
-                    if (deltaRotAnimated[i]):
-                        self.ExportAnimationTrack(deltaRotAnimCurve[i], deltaRotAnimKind[i], deltaSubrotationName[i], structFlag)
-                        structFlag = True
-
-            if (deltaScaleAnimated):
-                for i in range(3):
-                    if (deltaSclAnimated[i]):
-                        self.ExportAnimationTrack(deltaSclAnimCurve[i], deltaSclAnimKind[i], deltaSubscaleName[i], structFlag)
-                        structFlag = True
-
-            self.indentLevel -= 1
-            self.IndentWrite(B"}\n")
+                self.indentLevel -= 1
+                self.IndentWrite(B"}\n")
 
 
     def ExportBoneTransform(self, armature, bone, scene):
