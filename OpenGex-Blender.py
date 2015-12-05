@@ -114,9 +114,10 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
     filename_ext = ".ogex"
 
     option_export_selection = bpy.props.BoolProperty(name = "Export Selection Only", description = "Export only selected objects", default = True)
-    option_sample_animation = bpy.props.BoolProperty(name = "Force Sampled Animation", description = "Always export animation as per-frame samples", default = True)
     option_export_matnames = bpy.props.BoolProperty(name = "Material Names Only", description = "skip the material colors+textures", default = True)
-    option_export_matnames = bpy.props.BoolProperty(name = "Export Actions as separate files", description = "skip the material colors+textures", default = False)
+    option_export_animations = bpy.props.BoolProperty(name = "Export Actions", description = "export animations", default = False)
+    option_export_separateanimations = bpy.props.BoolProperty(name = "Export Actions as separate files", description = "will add _actionname.ogex to the filename", default = False)
+    option_sample_animation = bpy.props.BoolProperty(name = "Force Sampled Animation", description = "Always export animation as per-frame samples", default = True)
 
 
     def Write(self, text):
