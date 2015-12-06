@@ -118,6 +118,9 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
     option_export_animations = bpy.props.BoolProperty(name = "Export Actions", description = "export animations", default = False)
     option_export_separateanimations = bpy.props.BoolProperty(name = "Export Actions as separate files", description = "will add _actionname.ogex to the filename", default = False)
     option_sample_animation = bpy.props.BoolProperty(name = "Force Sampled Animation", description = "Always export animation as per-frame samples", default = True)
+    option_export_meshes = bpy.props.BoolProperty(name = "Export Meshes", description = "exports meshes", default = True)
+    option_export_cameras = bpy.props.BoolProperty(name = "Export Cameras", description = "exports cameras", default = False)
+    option_export_lights = bpy.props.BoolProperty(name = "Export Lights", description = "exports lights", default = False)
 
 
     def Write(self, text):
@@ -2681,10 +2684,12 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
     def ExportObjects(self, scene):
         for objectRef in self.geometryArray.items():
             self.ExportGeometry(objectRef, scene)
-        for objectRef in self.lightArray.items():
-            self.ExportLight(objectRef)
-        for objectRef in self.cameraArray.items():
-            self.ExportCamera(objectRef)
+        if(options_export_lights):
+            for objectRef in self.lightArray.items():
+                self.ExportLight(objectRef)
+        if(option_export_cameras):
+            for objectRef in self.cameraArray.items():
+                self.ExportCamera(objectRef)
 
 
     def ExportTexture(self, textureSlot, attrib):
