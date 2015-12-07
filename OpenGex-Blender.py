@@ -1335,7 +1335,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
         mode = node.rotation_mode
         sampledAnimation = ((self.sampleAnimationFlag) or (mode == "QUATERNION") or (mode == "AXIS_ANGLE"))
-        if(option_export_animations)
+        if(self.option_export_animations):
             if ((not sampledAnimation) and (node.animation_data)):
                 action = node.animation_data.action
                 if (action):
@@ -1399,7 +1399,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
             deltaRotationAnimated = deltaRotAnimated[0] | deltaRotAnimated[1] | deltaRotAnimated[2]
             deltaScaleAnimated = deltaSclAnimated[0] | deltaSclAnimated[1] | deltaSclAnimated[2]
 
-        if(option_export_animations):
+        if(self.option_export_animations):
             if ((sampledAnimation) or ((not positionAnimated) and (not rotationAnimated) and (not scaleAnimated) and (not deltaPositionAnimated) and (not deltaRotationAnimated) and (not deltaScaleAnimated))):
 
                 # If there's no keyframe animation at all, then write the node transform as a single 4x4 matrix.
@@ -2684,10 +2684,10 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
     def ExportObjects(self, scene):
         for objectRef in self.geometryArray.items():
             self.ExportGeometry(objectRef, scene)
-        if(options_export_lights):
+        if(self.option_export_lights):
             for objectRef in self.lightArray.items():
                 self.ExportLight(objectRef)
-        if(option_export_cameras):
+        if(self.option_export_cameras):
             for objectRef in self.cameraArray.items():
                 self.ExportCamera(objectRef)
 
