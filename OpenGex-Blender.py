@@ -831,8 +831,7 @@ class OpenGexExporter(bpy.types.Operator, ExportHelper):
 
 
     def ProcessBone(self, bone):
-        if ((self.exportAllFlag) or (bone.select)):
-            self.nodeArray[bone] = {"nodeType" : kNodeTypeBone, "structName" : bytes("node" + str(len(self.nodeArray) + 1), "UTF-8")}
+        self.nodeArray[bone] = {"nodeType" : kNodeTypeBone, "structName" : bytes("node" + str(len(self.nodeArray) + 1), "UTF-8")}
 
         for subnode in bone.children:
             self.ProcessBone(subnode)
